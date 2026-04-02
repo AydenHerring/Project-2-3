@@ -8,8 +8,8 @@ int yywrap(void) { return 1; }
 
 %%
 
-    /* ignore whitespace */
-[ \t\n]+    ;
+    /* ignore whitespace (including \r for Windows CRLF files) */
+[ \t\n\r]+    ;
 
     /* remove comments */
 "//".*                    { }
@@ -34,8 +34,9 @@ int yywrap(void) { return 1; }
     /* integers */
  [0-9]+             { printf("INT: %s\n", yytext); }
 
-    /* variables */
- [a-zA-Z_][a-zA-Z0-9_]*   { printf("VAR: %s\n", yytext); }
+    /* variables: standard (letter/_ start) or digit-start with at least one letter or _ */
+ [a-zA-Z_][a-zA-Z0-9_]*        { printf("VAR: %s\n", yytext); }
+ [0-9]+[a-zA-Z_][a-zA-Z0-9_]* { printf("VAR: %s\n", yytext); }
 
     /* pass symbols directly */
  [{}();=+,\[\]:]    { printf("%s\n", yytext); }
