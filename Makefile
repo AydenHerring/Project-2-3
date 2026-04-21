@@ -21,7 +21,7 @@ lex.yy.c: tree_builder.l tree_builder.tab.h
 	flex tree_builder.l
 
 test: $(PROGRAM)
-	./$(PROGRAM) < inputnested.txt
+	./$(PROGRAM) < input.txt
 
 clean:
 	rm -f lex.yy.c tree_builder.tab.c tree_builder.tab.h $(PROGRAM)
