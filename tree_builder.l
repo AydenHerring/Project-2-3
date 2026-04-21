@@ -1,52 +1,66 @@
-/*Authors: Parker Riggs and Ayden Herring */
+/* Authors: Parker Riggs and Ayden Herring */
 
 %{
-#include <stdio.h>
+#define YY_NO_UNPUT
+#define YY_NO_INPUT
 
+#include "tree_builder.tab.h"
+#include <string.h>
+#include <stdlib.h>
+
+// Provide yylval for Bison
+extern YYSTYPE yylval;
+#ifdef __cplusplus
+extern "C" int yywrap(void) { return 1; }
+#else
 int yywrap(void) { return 1; }
+#endif
 %}
 
 %%
 
-    /* ignore whitespace (including \r for Windows CRLF files) */
-[ \t\n\r]+    ;
+[ \t\r\n]+           ;
+"//".*               ;
+"/*"([^*]|\*+[^*/])*"*/" ;
 
-    /* remove comments */
-"//".*                    { }
-"/*"([^*]|\*+[^*/])*"*/"  { }
+"buildnode"          { return BUILDNODE; }
+"name"               { return NAME; }
+"weight"             { return WEIGHT; }
+"isachildof"         { return ISACHILDOF; }
+"print"              { return PRINT; }
 
-    /* capture buildnode */
- "buildnode"        { printf("BUILDNODE\n"); }
- "name"             { printf("NAME\n"); }
- "weight"           { printf("WEIGHT\n"); }
- "isachildof"       { printf("ISACHILDOF\n"); }
- 
-    /* capture for var in [?:?] */
- "for"              { printf("FOR\n"); }
- "in"               { printf("IN\n"); }
- 
-    /*capture prints */
- "print"            { printf("PRINT\n"); }
+\"[^\"]*\"           {
+    yylval.str = strdup(yytext + 1);
+    yylval.str[strlen(yylval.str) - 1] = 0;
+    return STRING;
+}
 
-    /* string literals */
- \"[^\"]*\"         { printf("STRING: %s\n", yytext); }
+[0-9]+               {
+    yylval.ival = atoi(yytext);
+    return INT;
+}
 
-    /* integers */
- [0-9]+             { printf("INT: %s\n", yytext); }
 
-    /* variables: standard (letter/_ start) or digit-start with at least one letter or _ */
- [a-zA-Z_][a-zA-Z0-9_]*        { printf("VAR: %s\n", yytext); }
- [0-9]+[a-zA-Z_][a-zA-Z0-9_]* { printf("VAR: %s\n", yytext); }
+"for"                { return FOR; }
+"in"                 { return IN; }
 
-    /* pass symbols directly */
- [{}();=+,\[\]:]    { printf("%s\n", yytext); }
+[a-zA-Z_][a-zA-Z0-9_]* {
+    yylval.str = strdup(yytext);
+    return IDENTIFIER;
+}
 
-    /* catch anything unexpected */
- .                  { printf("UNKNOWN: %s\n", yytext); }
+"{"                   { return '{'; }
+"}"                   { return '}'; }
+"("                   { return '('; }
+")"                   { return ')'; }
+";"                   { return ';'; }
+"="                   { return '='; }
+"+"                   { return '+'; }
+","                   { return ','; }
+"["                   { return '['; }
+"]"                   { return ']'; }
+":"                   { return ':'; }
+
+.                      { return *yytext; }
 
 %%
-
-int main() {
-    yylex();
-    return 0;
-}

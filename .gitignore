@@ -1,2 +1,5 @@
+compiler
 lexer
 lex.yy.c
+tree_builder.tab.c
+tree_builder.tab.h

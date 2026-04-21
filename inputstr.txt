@@ -1,0 +1,14 @@
+buildnode{
+name="root";
+weight=1;
+};
+
+for i in [1:3] {
+ buildnode {
+ name = "node_"+i+"_test";
+ weight = i;
+ isachildof = "root";
+ };
+};
+
+print("root");

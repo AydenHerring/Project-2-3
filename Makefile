@@ -1,22 +1,27 @@
 #Authors: Parker Riggs and Ayden Herring
 
-#compile
-LEX = flex
-CC = gcc
+# Compiler flags
+CFLAGS   = -Wall -Werror -O2
+CXXFLAGS = -Wall -Werror -O2
 
-#output
-TARGET = lexer
+CC  = gcc
+CXX = g++
 
-all: $(TARGET)
+PROGRAM = compiler
 
-$(TARGET): lex.yy.c
-	$(CC) lex.yy.c -o $(TARGET)
+all: $(PROGRAM)
 
-lex.yy.c: TreeBuilder.l
-	$(LEX) TreeBuilder.l
+$(PROGRAM): tree_builder.tab.c lex.yy.c main.cc parse_tree.h tree_node.h
+	$(CXX) $(CXXFLAGS) -x c++ tree_builder.tab.c lex.yy.c main.cc -o $(PROGRAM) $(LEXLIB)
 
-test: $(TARGET)
-	./$(TARGET) < input.txt
+tree_builder.tab.c tree_builder.tab.h: tree_builder.y parse_tree.h tree_node.h
+	bison -d tree_builder.y
+
+lex.yy.c: tree_builder.l tree_builder.tab.h
+	flex tree_builder.l
+
+test: $(PROGRAM)
+	./$(PROGRAM) < inputnested.txt
 
 clean:
-	rm -f lex.yy.c $(TARGET)
+	rm -f lex.yy.c tree_builder.tab.c tree_builder.tab.h $(PROGRAM)

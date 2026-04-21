@@ -1,0 +1,6 @@
+buildnode{
+name="root";
+weight=1;
+};
+
+print("root");
